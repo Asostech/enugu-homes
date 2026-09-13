@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verify email — Enugu Homes</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="logo-mark">EH</span> Enugu Homes</a>
+    </div>
+  </header>
+  <main class="auth-page">
+    <div class="auth-box">
+      <h2>Enter the 6-digit code</h2>
+      <p class="sub" id="hint">Use the code shown below.</p>
+      <form class="form panel" id="form">
+        <div>
+          <label>Code</label>
+          <input name="code" id="codeBox" required maxlength="6" inputmode="numeric" />
+        </div>
+        <p id="err" style="color:#9b1c1c"></p>
+        <button class="btn btn-primary" type="submit">Confirm account</button>
+      </form>
+    </div>
+  </main>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    const urlCode = new URLSearchParams(location.search).get("code") || "";
+    const ch = typeof readEmailChallenge === "function" ? readEmailChallenge() : null;
+    const expected = (ch && ch.code) ? ch.code : urlCode;
+
+    document.getElementById("hint").textContent = expected
+      ? "Type this code: " + expected
+      : "No code found. Go back to Sign up and submit the form again.";
+    if (expected) document.getElementById("codeBox").value = expected;
+
+    document.getElementById("form").onsubmit = (e) => {
+      e.preventDefault();
+      const typed = document.getElementById("codeBox").value.trim();
+      if (!expected) {
+        document.getElementById("err").textContent = "No pending sign up. Open Sign up again.";
+        return;
+      }
+      if (typed !== expected) {
+        document.getElementById("err").textContent = "Wrong code. Use " + expected;
+        return;
+      }
+      if (typeof finishSignup === "function") {
+        const res = finishSignup(typed);
+        if (res.ok) {
+          location.href = res.user.role === "seeker" ? "listings.html" : "list.html";
+          return;
+        }
+      }
+      const raw = localStorage.getItem("emailChallenge");
+      if (raw) {
+        const pending = JSON.parse(raw);
+        if (pending.kind === "signup" && pending.payload) {
+          const users = JSON.parse(localStorage.getItem("enuguUsers") || "[]");
+          const data = pending.payload;
+          if (!users.some(u => u.email.toLowerCase() === data.email.toLowerCase())) {
+            users.push({
+              id: "u" + Date.now(),
+              name: data.name,
+              email: data.email,
+              phone: data.phone,
+              password: data.password,
+              verified: true,
+              role: data.role,
+              createdAt: new Date().toISOString()
+            });
+            localStorage.setItem("enuguUsers", JSON.stringify(users));
+          }
+          localStorage.setItem("enuguSession", data.email);
+          localStorage.removeItem("emailChallenge");
+          location.href = data.role === "seeker" ? "listings.html" : "list.html";
+          return;
+        }
+      }
+      document.getElementById("err").textContent = "Could not finish sign up. Open Sign up and try once more.";
+    };
+  </script>
+</body>
+</html>

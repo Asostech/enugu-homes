@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My account — Enugu Homes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="logo-mark">EH</span> Enugu Homes</a>
+      <nav>
+        <a href="listings.html">Browse</a>
+        <a class="btn btn-outline" href="#" id="logoutBtn">Log out</a>
+      </nav>
+    </div>
+  </header>
+  <section class="section">
+    <div class="wrap">
+      <h2 id="hello">My account</h2>
+      <p class="sub" id="meta"></p>
+      <p><a class="btn btn-primary" href="list.html">List a property</a></p>
+      <h3 style="margin:28px 0 12px">My listings</h3>
+      <div class="grid" id="mine"></div>
+    </div>
+  </section>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="js/fb.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    const user = currentUser();
+    if (!user) location.href = "login.html";
+    else {
+      document.getElementById("hello").textContent = "Hello, " + user.name;
+      document.getElementById("meta").textContent = user.role + " · " + user.email + " · " + user.phone;
+      document.getElementById("logoutBtn").onclick = (e) => { e.preventDefault(); logoutUser(); };
+      const mine = allListings().filter(p => p.ownerEmail === user.email);
+      document.getElementById("mine").innerHTML = mine.length ? mine.map(cardHTML).join("") : "<p class='sub'>You have not listed anything yet.</p>";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>List a property — Enugu Homes</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="logo-mark">EH</span> Enugu Homes</a>
+      <button class="menu-btn" type="button" onclick="toggleNav()">Menu</button>
+      <nav id="nav">
+        <a href="index.html">Home</a>
+        <a href="listings.html">All listings</a>
+        <a href="about.html">About</a>
+        <a class="btn btn-primary" href="list.html">List a property</a>
+      </nav>
+    </div>
+  </header>
+  <section class="section">
+    <div class="wrap" style="max-width:720px">
+      <h2>List your Enugu property</h2>
+      <p class="sub">Free during launch. This demo saves on your phone/browser only until you connect hosting + a real database.</p>
+      <div class="notice">Use your real WhatsApp number in international format without +, e.g. 2348031234567.</div>
+      <form class="form panel" id="form">
+        <div class="form-row">
+          <div>
+            <label>Purpose</label>
+            <select name="type" required>
+              <option value="rent">For rent</option>
+              <option value="sale">For sale</option>
+              <option value="land">Land</option>
+            </select>
+          </div>
+          <div>
+            <label>Property type</label>
+            <select name="property" required>
+              <option>Self-contain</option>
+              <option>Mini-flat</option>
+              <option>Flat</option>
+              <option>Bungalow</option>
+              <option>Duplex</option>
+              <option>Land</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Title</label>
+          <input name="title" required placeholder="e.g. 2-bedroom flat in New Haven" />
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Area</label>
+            <select name="area" required>
+              <optgroup label="Enugu city">
+                <option>GRA</option>
+                <option>Independence Layout</option>
+                <option>New Haven</option>
+                <option>Trans-Ekulu</option>
+                <option>Thinkers Corner</option>
+                <option>Abakpa</option>
+                <option>Uwani</option>
+                <option>Emene</option>
+                <option>Ugwuaji</option>
+                <option>Centenary City</option>
+              </optgroup>
+              <optgroup label="Nsukka">
+                <option>Nsukka Town</option>
+                <option>UNN Campus / Hilltop</option>
+                <option>Onuiyi</option>
+                <option>Odenigbo</option>
+                <option>Ogige</option>
+                <option>Behind Flat</option>
+                <option>Nru Nsukka</option>
+                <option>Obukpa</option>
+                <option>Ede-Oballa</option>
+                <option>Orba</option>
+                <option>Eha-Alumona</option>
+                <option>Owerre-Eze-Obodo</option>
+                <option>Edem</option>
+                <option>Lejja</option>
+              </optgroup>
+              <optgroup label="Other">
+                <option value="Other">Other (type the area)</option>
+              </optgroup>
+            </select>
+            <input id="otherArea" name="otherArea" placeholder="Type the area / street if Other" style="margin-top:8px;display:none" />
+            </select>
+          </div>
+          <div>
+            <label>Price (₦)</label>
+            <input name="price" type="number" required placeholder="900000" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Bedrooms</label>
+            <input name="beds" type="number" value="1" />
+          </div>
+          <div>
+            <label>Bathrooms</label>
+            <input name="baths" type="number" value="1" />
+          </div>
+        </div>
+        <div>
+          <label>Description</label>
+          <textarea name="desc" rows="4" required placeholder="Condition, water, generator, estate, documents..."></textarea>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Your name</label>
+            <input name="lister" required />
+          </div>
+          <div>
+            <label>You are</label>
+            <select name="role">
+              <option>Owner</option>
+              <option>Agent</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>WhatsApp number</label>
+          <input name="phone" required placeholder="23480..." />
+        </div>
+                <div>
+          <label>Property photos</label>
+          <input id="photos" type="file" accept="image/*" multiple />
+          <p class="meta">Take or choose real pictures from your phone or computer. No link needed. Up to 6 photos.</p>
+          <div id="preview" class="amenities"></div>
+        </div>
+        <button class="btn btn-primary" type="submit">Publish listing</button>
+      </form>
+    </div>
+  </section>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="js/fb.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/site.js"></script>
+    <script src="js/upload.js"></script>
+  <script>
+    const me = requireLister();
+    const areaSelect = document.querySelector("select[name=area]");
+    const otherArea = document.getElementById("otherArea");
+    areaSelect.addEventListener("change", () => {
+      const show = areaSelect.value === "Other";
+      otherArea.style.display = show ? "block" : "none";
+      otherArea.required = show;
+    });
+    const photoInput = document.getElementById("photos");
+    photoInput.addEventListener("change", () => {
+      const box = document.getElementById("preview");
+      box.innerHTML = Array.from(photoInput.files).slice(0, 6)
+        .map(f => `<span class="chip">${f.name}</span>`).join("");
+    });
+    document.getElementById("form").onsubmit = async (e) => {
+      e.preventDefault();
+      const user = requireLister();
+      if (!user) return;
+      const f = Object.fromEntries(new FormData(e.target).entries());
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true;
+      btn.textContent = "Uploading photos...";
+      let photos = [];
+      try {
+        photos = await filesToPhotos(photoInput.files);
+      } catch (err) {
+        alert("Could not read those photos. Try smaller images.");
+        btn.disabled = false;
+        btn.textContent = "Publish listing";
+        return;
+      }
+      if (!photos.length) {
+        alert("Please upload at least one real photo of the property.");
+        btn.disabled = false;
+        btn.textContent = "Publish listing";
+        return;
+      }
+      const item = {
+        id: "u-" + Date.now(),
+        title: f.title,
+        type: f.type,
+        property: f.property,
+        area: f.area === "Other" ? (f.otherArea || "Other").trim() : f.area,
+        price: Number(f.price),
+        period: f.type === "rent" ? "/year" : "",
+        beds: Number(f.beds || 0),
+        baths: Number(f.baths || 0),
+        amenities: ["Listed by owner/agent"],
+        lister: f.lister,
+        role: f.role,
+        phone: f.phone.replace(/\D/g, ""),
+        desc: f.desc,
+        ownerEmail: user.email,
+        photo: photos[0],
+        photos: photos
+      };
+            item.createdAt = new Date().toISOString();
+      const extra = JSON.parse(localStorage.getItem("userListings") || "[]");
+      extra.unshift(item);
+      try { localStorage.setItem("userListings", JSON.stringify(extra)); } catch (err) {}
+      try {
+        btn.textContent = "Saving to Firebase...";
+        const slim = Object.assign({}, item, { photos: photos.slice(0, 2) });
+        const fid = await fbSaveListing(slim);
+        item.id = fid;
+      } catch (err) {
+        alert("Saved on this phone. Firebase could not store the photos. Try 1 smaller photo.");
+      }
+      location.href = "listing.html?id=" + item.id;
+    };
+  </script>
+</body>
+</html>

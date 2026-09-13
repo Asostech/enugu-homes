@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Forgot password — Enugu Homes</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="logo-mark">EH</span> Enugu Homes</a>
+    </div>
+  </header>
+  <main class="auth-page">
+    <div class="auth-box">
+      <h2>Reset password</h2>
+      <p class="sub">Enter the email on your account.</p>
+      <form class="form panel" id="ask">
+        <div>
+          <label>Email</label>
+          <input name="email" type="email" required />
+        </div>
+        <p id="err1" style="color:#9b1c1c"></p>
+        <button class="btn btn-primary" type="submit">Send code</button>
+      </form>
+      <form class="form panel" id="reset" style="display:none;margin-top:16px">
+        <div>
+          <label>6-digit code</label>
+          <input name="code" required maxlength="6" />
+        </div>
+        <div>
+          <label>New password</label>
+          <input name="password" type="password" required minlength="4" />
+        </div>
+        <p id="hint" class="meta"></p>
+        <p id="err2" style="color:#9b1c1c"></p>
+        <button class="btn btn-primary" type="submit">Save new password</button>
+      </form>
+    </div>
+  </main>
+      <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/fb.js"></script>
+  <script src="js/auth.js"></script>
+      <script>
+    document.getElementById("ask").onsubmit = async (e) => {
+      e.preventDefault();
+      const email = new FormData(e.target).get("email");
+      try {
+        await fbReset(email);
+        alert("Check your email for a password reset link.");
+        location.href = "login.html";
+      } catch (ex) {
+        document.getElementById("err1").textContent = mapAuthError(ex);
+      }
+    };
+  </script>
+</body>
+</html>

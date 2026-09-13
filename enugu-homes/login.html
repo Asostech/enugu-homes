@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Log in — Enugu Homes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="logo-mark">EH</span> Enugu Homes</a>
+      <nav><a class="btn btn-gold" href="signup.html">Sign up</a></nav>
+    </div>
+  </header>
+  <main class="auth-page">
+    <div class="auth-box">
+      <h2>Welcome back</h2>
+      <p class="sub">Log in to list property or manage your account.</p>
+      <form class="form panel" id="loginForm">
+        <div>
+          <label>Email</label>
+          <input name="email" type="email" required />
+        </div>
+        <div>
+                    <label>Password</label>
+          <div style="display:flex;gap:8px">
+            <input name="password" id="pw" type="password" required />
+            <button class="btn btn-outline" type="button" id="togglePw">Show</button>
+          </div>
+        <p id="err" style="color:#9b1c1c"></p>
+                <div class="g-recaptcha" data-sitekey="6Lc7W7ktAAAAACndgnwN1zqTcJg7XVt3fPF-8TTm"></div>
+        <button class="btn btn-primary" type="submit">Log in</button>
+                <p class="meta"><a href="forgot.html">Forgot password?</a></p>
+        <p class="meta">New here? <a href="signup.html">Create an account</a></p>
+      </form>
+    </div>
+  </main>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/fb.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+       document.getElementById("loginForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const f = Object.fromEntries(new FormData(e.target).entries());
+      const err = document.getElementById("err");
+      try {
+        if (window.grecaptcha) {
+          const token = grecaptcha.getResponse();
+          if (!token) {
+            err.textContent = "Tick the I'm not a robot box.";
+            return;
+          }
+        }
+        err.textContent = "Signing in...";
+        await fbLogin(f.email, f.password);
+        location.href = "account.html";
+      } catch (ex) {
+        err.textContent = mapAuthError(ex);
+      }
+    };
+        document.getElementById("togglePw")?.addEventListener("click", () => {
+      const box = document.getElementById("pw");
+      const btn = document.getElementById("togglePw");
+      const show = box.type === "password";
+      box.type = show ? "text" : "password";
+      btn.textContent = show ? "Hide" : "Show";
+    });
+  </script>
+</body>
+</html>

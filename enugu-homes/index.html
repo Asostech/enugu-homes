@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Enugu Homes — Houses & land in Enugu State</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <span>Enugu State · landlords, agents, tenants & buyers</span>
+      <span>Call <span data-site-phone></span> · <a data-site-email href="#"></a></span>
+    </div>
+  </div>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="logo-mark">EH</span> Enugu Homes</a>
+      <button class="menu-btn" type="button" onclick="toggleNav()">Menu</button>
+      <nav id="nav">
+        <a class="active" href="index.html">Home</a>
+        <a href="listings.html">Browse</a>
+        <a href="listings.html?type=rent">Rent</a>
+        <a href="listings.html?type=sale">Buy</a>
+        <a href="listings.html?type=land">Land</a>
+        <a href="about.html">About</a>
+        <span id="authSlot"></span>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <h1>The Enugu property board for people who actually live here.</h1>
+      <p>Landlords and agents list houses, flats and land. Tenants and buyers search, then WhatsApp the lister.</p>
+      <div class="tabs">
+        <button class="tab on" data-type="rent">I want to rent</button>
+        <button class="tab" data-type="sale">I want to buy</button>
+        <button class="tab" data-type="land">I want land</button>
+      </div>
+      <form class="search-card" action="listings.html" id="searchForm">
+        <input type="hidden" name="type" id="typeField" value="rent" />
+        <div>
+          <label>Area</label>
+          <select name="area" required>
+            <option value="">All Enugu State</option>
+              <optgroup label="Enugu city">
+                <option>GRA</option>
+                <option>Independence Layout</option>
+                <option>New Haven</option>
+                <option>Trans-Ekulu</option>
+                <option>Thinkers Corner</option>
+                <option>Abakpa</option>
+                <option>Uwani</option>
+                <option>Emene</option>
+                <option>Ugwuaji</option>
+                <option>Centenary City</option>
+              </optgroup>
+              <optgroup label="Nsukka">
+                <option>Nsukka Town</option>
+                <option>UNN Campus / Hilltop</option>
+                <option>Onuiyi</option>
+                <option>Odenigbo</option>
+                <option>Ogige</option>
+                <option>Behind Flat</option>
+                <option>Nru Nsukka</option>
+                <option>Obukpa</option>
+                <option>Ede-Oballa</option>
+                <option>Orba</option>
+                <option>Eha-Alumona</option>
+                <option>Owerre-Eze-Orba</option>
+                <option>Edem</option>
+                <option>Lejja</option>
+              </optgroup>
+            </select>
+        </div>
+        <div>
+          <label>Type</label>
+          <select name="property">
+            <option value="">Any</option>
+            <option>Self-contain</option>
+            <option>Mini-flat</option>
+            <option>Flat</option>
+            <option>Bungalow</option>
+            <option>Duplex</option>
+            <option>Land</option>
+          </select>
+        </div>
+        <div>
+          <label>Bedrooms</label>
+          <select name="beds">
+            <option value="">Any</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+          </select>
+        </div>
+        <div>
+          <label>Max price (₦)</label>
+          <input name="max" type="number" placeholder="e.g. 2000000" />
+        </div>
+        <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+      <div class="stats">
+        <div class="stat"><b>Enugu only</b><span>No Lagos/Abuja noise</span></div>
+        <div class="stat"><b>WhatsApp first</b><span>Talk to the lister directly</span></div>
+        <div class="stat"><b>Free to start</b><span>Sign up and list</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Popular areas</h2>
+      <p class="sub">Start with the neighbourhoods people actually search.</p>
+            <div class="areas">
+        <a class="area area-enugu" href="listings.html?area=GRA">
+          <i>Enugu</i>
+          <strong>GRA</strong>
+          <span>Premium homes</span>
+        </a>
+        <a class="area area-enugu" href="listings.html?area=Independence%20Layout">
+          <i>Enugu</i>
+          <strong>Independence Layout</strong>
+          <span>Family & executive</span>
+        </a>
+        <a class="area area-enugu" href="listings.html?area=New%20Haven">
+          <i>Enugu</i>
+          <strong>New Haven</strong>
+          <span>City living</span>
+        </a>
+        <a class="area area-enugu" href="listings.html?area=Trans-Ekulu">
+          <i>Enugu</i>
+          <strong>Trans-Ekulu</strong>
+          <span>Quiet & mid-range</span>
+        </a>
+        <a class="area area-enugu" href="listings.html?area=Thinkers%20Corner">
+          <i>Enugu</i>
+          <strong>Thinkers Corner</strong>
+          <span>Growing area</span>
+        </a>
+        <a class="area area-enugu" href="listings.html?area=Abakpa">
+          <i>Enugu</i>
+          <strong>Abakpa</strong>
+          <span>Budget rentals</span>
+        </a>
+        <a class="area area-enugu" href="listings.html?area=Uwani">
+          <i>Enugu</i>
+          <strong>Uwani</strong>
+          <span>Near UNEC</span>
+        </a>
+        <a class="area area-land" href="listings.html?area=Ugwuaji">
+          <i>Land</i>
+          <strong>Ugwuaji</strong>
+          <span>Affordable land</span>
+        </a>
+        <a class="area area-nsukka" href="listings.html?area=Nsukka%20Town">
+          <i>Nsukka</i>
+          <strong>Nsukka Town</strong>
+          <span>Main town</span>
+        </a>
+        <a class="area area-nsukka" href="listings.html?area=UNN%20Campus%20%2F%20Hilltop">
+          <i>Nsukka</i>
+          <strong>UNN / Hilltop</strong>
+          <span>Student Area</span>
+        </a>
+        <a class="area area-nsukka" href="listings.html?area=Onuiyi">
+          <i>Nsukka</i>
+          <strong>Onuiyi</strong>
+          <span>Student rentals</span>
+        </a>
+        <a class="area area-nsukka" href="listings.html?area=Odenigbo">
+          <i>Nsukka</i>
+          <strong>Odenigbo</strong>
+          <span>Nsukka centre</span>
+        </a>
+        <a class="area area-nsukka" href="listings.html?area=Ogige">
+          <i>Nsukka</i>
+          <strong>Ogige</strong>
+          <span>Market area</span>
+        </a>
+        <a class="area area-nsukka" href="listings.html?area=Behind%20Flat">
+          <i>Nsukka</i>
+          <strong>Behind Flat</strong>
+          <span>Student area</span>
+        </a>
+        <a class="area area-nsukka" href="listings.html?area=Nru%20Nsukka">
+          <i>Nsukka</i>
+          <strong>Nru Nsukka</strong>
+          <span>Residential</span>
+        </a>
+        <a class="area area-nsukka" href="listings.html?area=Obukpa">
+          <i>Nsukka</i>
+          <strong>Obukpa</strong>
+          <span>Growing suburban</span>
+        </a>
+        <a class="area area-nsukka" href="listings.html?area=Odim%20Gate">
+          <i>Nsukka</i>
+          <strong>Odim Gate</strong>
+          <span>Student Area</span>
+        </a>
+      </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <h2>Latest listings</h2>
+      <p class="sub">Sample properties</p>
+      <div class="grid" id="homeGrid"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="cols">
+        <div>
+          <strong>Enugu Homes</strong>
+          <p>A working board for Enugu rentals, sales and land. <span data-site-phone></span><br>
+          <a data-site-email href="#"></a></p>
+        </div>
+        <div>
+          <strong>For seekers</strong><br />
+          <a href="signup.html">Create a free account</a><br />
+          <a href="listings.html">Browse listings</a>
+        </div>
+        <div>
+          <strong>For listers</strong><br />
+          <a href="signup.html">Sign up as landlord/agent</a><br />
+          <a data-site-wa href="#">WhatsApp the site</a>
+        </div>
+      </div>
+      <div class="copy">© 2026 Enugu Homes · Enugu State</div>
+    </div>
+  </footer>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/site.js"></script>
+  <script>
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
+        tab.classList.add("on");
+        document.getElementById("typeField").value = tab.dataset.type;
+      };
+    });
+    document.getElementById("homeGrid").innerHTML = allListings().slice(0, 10).map(cardHTML).join("");
+  </script>
+</body>
+</html>

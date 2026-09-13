@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Property — Enugu Homes</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="logo-mark">EH</span> Enugu Homes</a>
+      <button class="menu-btn" type="button" onclick="toggleNav()">Menu</button>
+      <nav id="nav">
+        <a href="index.html">Home</a>
+        <a href="listings.html">All listings</a>
+        <a href="about.html">About</a>
+        <a class="btn btn-primary" href="list.html">List a property</a>
+      </nav>
+    </div>
+  </header>
+  <section class="section">
+    <div class="wrap layout" id="page"></div>
+  </section>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="js/fb.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/site.js"></script>
+  <script>
+        const id = new URLSearchParams(location.search).get("id");
+    refreshListings().then(() => {
+        let p = allListings().find(x => x.id === id || String(x.id) === String(id));
+    const el = document.getElementById("page");
+    if (!p) {
+      el.innerHTML = "<p>Listing not found. <a href='listings.html'>Back to listings</a></p>";
+    } else {
+      document.title = p.title + " — Enugu Homes";
+      const pics = (p.photos && p.photos.length ? p.photos : [p.photo]);
+      el.innerHTML = `
+        <div>
+          <div class="gallery">
+            <div class="main" style="background-image:url('${pics[0]}')"></div>
+            <div class="side">
+              <div style="background-image:url('${pics[1] || pics[0]}')"></div>
+              <div style="background-image:url('${pics[2] || pics[0]}')"></div>
+            </div>
+          </div>
+          <h1 style="margin:18px 0 8px">${p.title}</h1>
+          <p class="meta">${p.property} · ${p.area} · Enugu State</p>
+          <div class="facts">
+            <div class="fact"><small>Price</small><strong>${formatNaira(p.price)}${p.period || ""}</strong></div>
+            <div class="fact"><small>Bedrooms</small><strong>${p.beds || "—"}</strong></div>
+            <div class="fact"><small>Bathrooms</small><strong>${p.baths || "—"}</strong></div>
+            <div class="fact"><small>Listed by</small><strong>${p.lister} (${p.role})</strong></div>
+          </div>
+          <h3>About this property</h3>
+          <p>${p.desc}</p>
+          <h3 style="margin-top:16px">Amenities</h3>
+          <div class="amenities">${p.amenities.map(a => `<span class="chip">${a}</span>`).join("")}</div>
+        </div>
+        <aside>
+          <div class="panel">
+            <div class="price">${formatNaira(p.price)}${p.period || ""}</div>
+            <p class="meta" style="margin:8px 0 16px">Chat the lister on WhatsApp or call. Do not pay inspection or “agency” fees to unknown numbers without meeting them.</p>
+            <a class="btn btn-wa" style="width:100%;margin-bottom:8px" href="${waLink(p.phone, p.title)}" target="_blank">WhatsApp ${p.lister}</a>
+                       <a class="btn btn-call" style="width:100%" href="tel:+${p.phone}">Call lister</a>
+            ${canDeleteListing(p, currentUser()) ? `<button class="btn btn-outline" style="width:100%;margin-top:8px;color:#9b1c1c;border-color:#e7b6b6" id="delBtn">Delete listing</button>` : ""}
+          </div>
+        </aside>`;
+      document.getElementById("delBtn")?.addEventListener("click", () => {
+        if (!confirm("Remove this listing from the site?")) return;
+        deleteListing(p.id);
+                        if (typeof fbDeleteListing === "function") {
+          fbDeleteListing(p.id);
+          const q = new URLSearchParams(location.search).get("id");
+          if (q && q !== p.id) fbDeleteListing(q);
+        }
+        location.href = "listings.html";
+            });
+    }
+    });
+  </script>
+</body>
+</html>

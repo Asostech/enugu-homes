@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Listings — Enugu Homes</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="logo-mark">EH</span> Enugu Homes</a>
+      <button class="menu-btn" type="button" onclick="toggleNav()">Menu</button>
+      <nav id="nav">
+        <a href="index.html">Home</a>
+        <a class="active" href="listings.html">All listings</a>
+        <a href="about.html">About</a>
+        <a class="btn btn-primary" href="list.html">List a property</a>
+      </nav>
+    </div>
+  </header>
+  <section class="section">
+    <div class="wrap">
+      <h2 id="heading">All listings</h2>
+      <p class="sub" id="count"></p>
+      <form class="filters" id="filters">
+        <div>
+          <label>Purpose</label>
+          <select name="type">
+            <option value="">All</option>
+            <option value="rent">Rent</option>
+            <option value="sale">Buy</option>
+            <option value="land">Land</option>
+          </select>
+        </div>
+        <div>
+          <label>Area</label>
+          <select name="area" required>
+            <option value="">All Enugu State</option>
+              <optgroup label="Enugu city">
+                <option>GRA</option>
+                <option>Independence Layout</option>
+                <option>New Haven</option>
+                <option>Trans-Ekulu</option>
+                <option>Thinkers Corner</option>
+                <option>Abakpa</option>
+                <option>Uwani</option>
+                <option>Emene</option>
+                <option>Ugwuaji</option>
+                <option>Centenary City</option>
+              </optgroup>
+              <optgroup label="Nsukka">
+                <option>Nsukka Town</option>
+                <option>UNN Campus / Hilltop</option>
+                <option>Onuiyi</option>
+                <option>Odenigbo</option>
+                <option>Ogige</option>
+                <option>Behind Flat</option>
+                <option>Nru Nsukka</option>
+                <option>Obukpa</option>
+                <option>Ede-Oballa</option>
+                <option>Orba</option>
+                <option>Eha-Alumona</option>
+                <option>Owerre-Eze-Obodo</option>
+                <option>Edem</option>
+                <option>Lejja</option>
+              </optgroup>
+            </select>
+        </div>
+        <div>
+          <label>Type</label>
+          <select name="property">
+            <option value="">Any</option>
+            <option>Self-contain</option>
+            <option>Mini-flat</option>
+            <option>Flat</option>
+            <option>Bungalow</option>
+            <option>Duplex</option>
+            <option>Land</option>
+          </select>
+        </div>
+        <div>
+          <label>Beds</label>
+          <select name="beds">
+            <option value="">Any</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Filter</button>
+      </form>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+  <footer>
+    <div class="wrap"><div class="copy">Enugu Homes · Enugu State MVP</div></div>
+  </footer>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="js/fb.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/site.js"></script>
+  <script>
+    const q = new URLSearchParams(location.search);
+    ["type","area","property","beds"].forEach(name => {
+      const el = document.querySelector("[name="+name+"]");
+      if (q.get(name) && el) el.value = q.get(name);
+    });
+    const type = q.get("type") || "";
+    const area = q.get("area") || "";
+    const property = q.get("property") || "";
+    const beds = Number(q.get("beds") || 0);
+    const max = Number(q.get("max") || 0);
+        refreshListings().then(() => {
+    let items = allListings().filter(p => {
+      if (type && p.type !== type) return false;
+      if (area && p.area !== area) return false;
+      if (property && p.property !== property) return false;
+      if (beds && p.beds < beds) return false;
+      if (max && p.price > max) return false;
+      return true;
+    });
+    const titleBits = [type === "sale" ? "For sale" : type === "rent" ? "For rent" : type === "land" ? "Land" : "Listings", area].filter(Boolean);
+    document.getElementById("heading").textContent = titleBits.join(" · ") || "All listings";
+    document.getElementById("count").textContent = items.length + " propert" + (items.length === 1 ? "y" : "ies") + " in Enugu";
+        document.getElementById("grid").innerHTML = items.length
+      ? items.map(cardHTML).join("")
+      : "<p>No listings match those filters yet. Try another area or <a href='list.html'>list a property</a>.</p>";
+    });
+  </script>
+</body>
+</html>
