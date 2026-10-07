@@ -73,8 +73,30 @@ async function fbReset(email) {
   return { ok: true };
 }
 
+
 async function fbSaveListing(item) {
-  const ref = await fbDb().collection("listings").add(item);
+  const auth = fbAuth();
+  if (!auth) {
+    throw new Error("Firebase is not initialized.");
+  }
+
+  const user = await new Promise(resolve => {
+    const unsubscribe = auth.onAuthStateChanged(firebaseUser => {
+      unsubscribe();
+      resolve(firebaseUser);
+    });
+  });
+
+  if (!user) {
+    throw new Error("You are not signed in to Firebase. Please log in again.");
+  }
+
+  const listing = Object.assign({}, item, {
+  ownerEmail: user.email,
+  ownerUid: user.uid
+});
+
+  const ref = await fbDb().collection("listings").add(listing);
   return ref.id;
 }
 
@@ -88,4 +110,109 @@ async function fbLoadListings() {
 
 async function fbDeleteListing(id) {
   await fbDb().collection("listings").doc(id).delete();
+}
+
+// =========================
+// ADVERTISEMENT FUNCTIONS
+// =========================
+
+const FB_ADMIN_EMAIL = "enuguhomessurpport@gmail.com";
+
+// Check the currently authenticated Firebase user.
+function fbIsAdAdmin() {
+  const user = fbAuth()?.currentUser;
+  return !!user &&
+    (user.email || "").toLowerCase() === FB_ADMIN_EMAIL.toLowerCase();
+}
+
+// Load active adverts for public pages.
+async function fbLoadActiveAds() {
+  const db = fbDb();
+  if (!db) throw new Error("Firebase is not initialized.");
+
+  const snap = await db.collection("ads")
+    .where("status", "==", "active")
+    .get();
+
+  return snap.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+}
+
+// Load all adverts for the admin dashboard.
+async function fbLoadAllAds() {
+  if (!fbIsAdAdmin()) {
+    throw new Error("Admin access required.");
+  }
+
+  const snap = await fbDb().collection("ads").get();
+
+  return snap.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+}
+
+// Create a new advert.
+async function fbCreateAd(ad) {
+  if (!fbIsAdAdmin()) {
+    throw new Error("Admin access required.");
+  }
+
+  const now = firebase.firestore.FieldValue.serverTimestamp();
+
+  const data = {
+    title: String(ad.title || ""),
+    mediaType: ad.mediaType,
+    mediaUrl: ad.mediaUrl,
+    status: ad.status || "paused",
+    linkUrl: String(ad.linkUrl || ""),
+    order: Number(ad.order || 1),
+    createdAt: now,
+    updatedAt: now
+  };
+
+  const ref = await fbDb().collection("ads").add(data);
+  return ref.id;
+}
+
+// Edit an existing advert.
+async function fbUpdateAd(id, ad) {
+  if (!fbIsAdAdmin()) {
+    throw new Error("Admin access required.");
+  }
+
+  await fbDb().collection("ads").doc(id).update({
+    title: String(ad.title || ""),
+    mediaType: ad.mediaType,
+    mediaUrl: ad.mediaUrl,
+    status: ad.status,
+    linkUrl: String(ad.linkUrl || ""),
+    order: Number(ad.order || 1),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+// Pause or activate an advert.
+async function fbSetAdStatus(id, status) {
+  if (!fbIsAdAdmin()) {
+    throw new Error("Admin access required.");
+  }
+
+  if (!["active", "paused"].includes(status)) {
+    throw new Error("Invalid advert status.");
+  }
+
+  await fbDb().collection("ads").doc(id).update({
+    status,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+// Delete an advert from Firestore.
+async function fbDeleteAd(id) {
+  if (!fbIsAdAdmin()) {
+    throw new Error("Admin access required.");
+  }
+
+  await fbDb().collection("ads").doc(id).delete();
 }

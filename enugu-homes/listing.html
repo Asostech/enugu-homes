@@ -42,13 +42,21 @@
       const pics = (p.photos && p.photos.length ? p.photos : [p.photo]);
       el.innerHTML = `
         <div>
-          <div class="gallery">
-            <div class="main" style="background-image:url('${pics[0]}')"></div>
-            <div class="side">
-              <div style="background-image:url('${pics[1] || pics[0]}')"></div>
-              <div style="background-image:url('${pics[2] || pics[0]}')"></div>
-            </div>
-          </div>
+          
+<div class="gallery" id="propertyGallery">
+  <button type="button" class="gallery-main photo-open" data-photo="0" aria-label="View main property photo">
+    <img src="${pics[0]}" alt="${p.title}" />
+  </button>
+  <div class="side">
+    <button type="button" class="gallery-side photo-open" data-photo="1" aria-label="View second property photo">
+      <img src="${pics[1] || pics[0]}" alt="${p.title}" />
+    </button>
+    <button type="button" class="gallery-side photo-open" data-photo="2" aria-label="View third property photo">
+      <img src="${pics[2] || pics[0]}" alt="${p.title}" />
+    </button>
+  </div>
+</div>
+
           <h1 style="margin:18px 0 8px">${p.title}</h1>
           <p class="meta">${p.property} · ${p.area} · Enugu State</p>
           <div class="facts">
@@ -68,21 +76,225 @@
             <p class="meta" style="margin:8px 0 16px">Chat the lister on WhatsApp or call. Do not pay inspection or “agency” fees to unknown numbers without meeting them.</p>
             <a class="btn btn-wa" style="width:100%;margin-bottom:8px" href="${waLink(p.phone, p.title)}" target="_blank">WhatsApp ${p.lister}</a>
                        <a class="btn btn-call" style="width:100%" href="tel:+${p.phone}">Call lister</a>
+                       ${currentUser()?.role === "seeker" && p.ownerEmail !== currentUser()?.email ? `
+  <button
+    class="btn btn-outline"
+    style="width:100%;margin-top:8px;"
+    type="button"
+    onclick="startConversation('${p.id}')"
+  >
+    Message Landlord / Agent
+  </button>
+` : ""}
             ${canDeleteListing(p, currentUser()) ? `<button class="btn btn-outline" style="width:100%;margin-top:8px;color:#9b1c1c;border-color:#e7b6b6" id="delBtn">Delete listing</button>` : ""}
           </div>
         </aside>`;
-      document.getElementById("delBtn")?.addEventListener("click", () => {
-        if (!confirm("Remove this listing from the site?")) return;
-        deleteListing(p.id);
-                        if (typeof fbDeleteListing === "function") {
-          fbDeleteListing(p.id);
-          const q = new URLSearchParams(location.search).get("id");
-          if (q && q !== p.id) fbDeleteListing(q);
-        }
-        location.href = "listings.html";
-            });
+       
+// Create the photo viewer
+document.body.insertAdjacentHTML("beforeend", `
+  <div class="lightbox" id="photoLightbox" aria-hidden="true">
+    <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Close viewer">×</button>
+    <button type="button" class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous photo">‹</button>
+    <div class="lightbox-content">
+      <img id="lightboxImage" src="" alt="Enlarged property photo" />
+    </div>
+    <button type="button" class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next photo">›</button>
+    <div class="lightbox-tools">
+      <span id="lightboxCount"></span>
+      <button type="button" id="zoomBtn">Zoom in</button>
+    </div>
+  </div>
+`);
+
+const lightbox = document.getElementById("photoLightbox");
+const lightboxImage = document.getElementById("lightboxImage");
+const lightboxCount = document.getElementById("lightboxCount");
+const zoomBtn = document.getElementById("zoomBtn");
+
+let currentPhoto = 0;
+
+function showPhoto(index) {
+  if (!pics || pics.length === 0) return;
+
+  currentPhoto = (index + pics.length) % pics.length;
+  lightboxImage.src = pics[currentPhoto];
+  lightboxImage.alt = `Property photo ${currentPhoto + 1}`;
+  lightboxCount.textContent = `${currentPhoto + 1} / ${pics.length}`;
+  lightboxImage.classList.remove("zoomed");
+  zoomBtn.textContent = "Zoom in";
+}
+
+function openPhoto(index) {
+  if (!pics || pics.length === 0) return;
+
+  showPhoto(index);
+  lightbox.classList.add("is-open");
+  lightbox.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closePhoto() {
+  lightbox.classList.remove("is-open");
+  lightbox.setAttribute("aria-hidden", "true");
+  lightboxImage.classList.remove("zoomed");
+  document.body.style.overflow = "";
+}
+
+document.querySelectorAll("#propertyGallery .photo-open").forEach(button => {
+  button.addEventListener("click", () => {
+    openPhoto(Number(button.dataset.photo));
+  });
+});
+
+document.getElementById("lightboxClose").addEventListener("click", closePhoto);
+
+document.getElementById("lightboxPrev").addEventListener("click", () => {
+  showPhoto(currentPhoto - 1);
+});
+
+document.getElementById("lightboxNext").addEventListener("click", () => {
+  showPhoto(currentPhoto + 1);
+});
+
+zoomBtn.addEventListener("click", () => {
+  const zoomed = lightboxImage.classList.toggle("zoomed");
+  zoomBtn.textContent = zoomed ? "Zoom out" : "Zoom in";
+});
+
+lightbox.addEventListener("click", event => {
+  if (event.target === lightbox) {
+    closePhoto();
+  }
+});
+
+document.addEventListener("keydown", event => {
+  if (!lightbox.classList.contains("is-open")) return;
+
+  if (event.key === "Escape") closePhoto();
+  if (event.key === "ArrowRight") showPhoto(currentPhoto + 1);
+  if (event.key === "ArrowLeft") showPhoto(currentPhoto - 1);
+});
+
+document.getElementById("delBtn")?.addEventListener("click", async () => {
+  if (!confirm("Are you sure you want to delete this listing?")) return;
+
+  const btn = document.getElementById("delBtn");
+  btn.disabled = true;
+  btn.textContent = "Deleting...";
+
+  try {
+    console.log("Firebase user:", firebase.auth().currentUser);
+console.log("Listing owner:", p.ownerEmail);
+    await fbDeleteListing(p.id);
+    deleteListing(p.id);
+
+    alert("Listing deleted successfully.");
+    location.href = "listings.html";
+  } catch (err) {
+    console.error("Delete error:", err);
+    alert("Could not delete listing from Firebase: " + (err.message || err));
+
+    btn.disabled = false;
+    btn.textContent = "Delete listing";
+  }
+});
     }
     });
+    async function startConversation(listingId) {
+  const user = currentUser();
+
+  if (!user) {
+    location.href = "login.html?next=listing.html?id=" + encodeURIComponent(listingId);
+    return;
+  }
+
+  if (user.role !== "seeker") {
+    alert("Only tenants and buyers can message a landlord or agent.");
+    return;
+  }
+
+  try {
+    const auth = fbAuth();
+
+const firebaseUser = await new Promise(resolve => {
+  if (!auth) {
+    resolve(null);
+    return;
+  }
+
+  if (auth.currentUser) {
+    resolve(auth.currentUser);
+    return;
+  }
+
+  const unsubscribe = auth.onAuthStateChanged(user => {
+    unsubscribe();
+    resolve(user);
+  });
+});
+
+if (!firebaseUser) {
+  alert("Your Firebase login session is not ready. Please log in again.");
+  return;
+}
+    const db = fbDb();
+
+    if (!db) {
+      alert("Messaging is currently unavailable. Please try again.");
+      return;
+    }
+
+    const listing = (window._remoteListings || []).find(
+  p => String(p.id) === String(listingId)
+);
+
+if (!listing) {
+  alert("This property could not be found.");
+  return;
+}
+
+    if (!listing.ownerUid) {
+      alert("This property is not yet ready for private messaging.");
+      return;
+    }
+
+    const seekerUid = firebaseUser.uid;
+    const ownerUid = listing.ownerUid;
+
+    if (seekerUid === ownerUid) {
+      alert("You cannot message yourself about your own property.");
+      return;
+    }
+
+   const conversationId =
+  listingId + "_" + seekerUid + "_" + ownerUid;
+
+    const conversationRef = db
+  .collection("conversations")
+  .doc(conversationId);
+
+const existingConversation = await conversationRef.get();
+
+if (!existingConversation.exists) {
+  await conversationRef.set({
+    participants: [seekerUid, ownerUid],
+    listingId: listingId,
+    listingTitle: listing.title || "Property",
+    lastMessage: "",
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+location.href =
+  "messages.html?conversationId=" +
+  encodeURIComponent(conversationId);
+
+  } catch (error) {
+    console.error("Start conversation error:", error);
+    alert("Could not start the conversation. Please try again.");
+  }
+}
   </script>
 </body>
 </html>

@@ -126,24 +126,41 @@
           <label>WhatsApp number</label>
           <input name="phone" required placeholder="23480..." />
         </div>
-                <div>
-          <label>Property photos</label>
-          <input id="photos" type="file" accept="image/*" multiple />
-          <p class="meta">Take or choose real pictures from your phone or computer. No link needed. Up to 6 photos.</p>
-          <div id="preview" class="amenities"></div>
-        </div>
-        <button class="btn btn-primary" type="submit">Publish listing</button>
+                
+<div>
+  <label>Property photos</label>
+
+  <input
+    id="photos"
+    type="file"
+    accept="image/jpeg,image/png,image/webp"
+    hidden
+  />
+
+  <button class="btn" type="button" id="addPhotoBtn">
+    + Add photo
+  </button>
+
+  <p class="meta">
+    Take or choose real pictures from your phone or computer.
+    Up to 6 photos. You can remove a photo before publishing.
+  </p>
+
+  <div id="preview" class="amenities"></div>
+</div>
+
+ <button class="btn btn-primary" type="submit">Publish listing</button>
       </form>
     </div>
   </section>
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-  <script src="js/fb.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/site.js"></script>
-    <script src="js/upload.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="js/data.js"></script>
+<script src="js/fb.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/site.js"></script>
+<script src="js/upload.js"></script>
   <script>
     const me = requireLister();
     const areaSelect = document.querySelector("select[name=area]");
@@ -153,12 +170,84 @@
       otherArea.style.display = show ? "block" : "none";
       otherArea.required = show;
     });
-    const photoInput = document.getElementById("photos");
-    photoInput.addEventListener("change", () => {
-      const box = document.getElementById("preview");
-      box.innerHTML = Array.from(photoInput.files).slice(0, 6)
-        .map(f => `<span class="chip">${f.name}</span>`).join("");
+    
+const photoInput = document.getElementById("photos");
+const addPhotoBtn = document.getElementById("addPhotoBtn");
+const preview = document.getElementById("preview");
+
+const selectedPhotos = [];
+
+addPhotoBtn.addEventListener("click", () => {
+  if (selectedPhotos.length >= 6) {
+    alert("You can upload a maximum of 6 photos.");
+    return;
+  }
+
+  photoInput.click();
+});
+
+photoInput.addEventListener("change", () => {
+  const file = photoInput.files[0];
+
+  if (!file) return;
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    alert("Please select a JPG, PNG, or WebP image.");
+    photoInput.value = "";
+    return;
+  }
+
+  if (selectedPhotos.length >= 6) {
+    alert("You can upload a maximum of 6 photos.");
+    photoInput.value = "";
+    return;
+  }
+
+  selectedPhotos.push(file);
+  renderPhotoPreview();
+
+  // Clear the input so the same file can be selected again
+  photoInput.value = "";
+});
+
+function renderPhotoPreview() {
+  preview.innerHTML = "";
+
+  selectedPhotos.forEach((photo, index) => {
+    const chip = document.createElement("span");
+    chip.className = "chip";
+
+    const name = document.createElement("span");
+    name.textContent = `Photo ${index + 1}: ${photo.name}`;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.textContent = "×";
+    removeBtn.setAttribute("aria-label", `Remove ${photo.name}`);
+    removeBtn.style.border = "0";
+    removeBtn.style.background = "none";
+    removeBtn.style.cursor = "pointer";
+    removeBtn.style.color = "#b91c1c";
+    removeBtn.style.fontWeight = "bold";
+    removeBtn.style.marginLeft = "8px";
+
+    removeBtn.addEventListener("click", () => {
+      selectedPhotos.splice(index, 1);
+      renderPhotoPreview();
     });
+
+    chip.appendChild(name);
+    chip.appendChild(removeBtn);
+    preview.appendChild(chip);
+  });
+}
+
     document.getElementById("form").onsubmit = async (e) => {
       e.preventDefault();
       const user = requireLister();
@@ -169,7 +258,7 @@
       btn.textContent = "Uploading photos...";
       let photos = [];
       try {
-        photos = await filesToPhotos(photoInput.files);
+       photos = await filesToPhotos(selectedPhotos);
       } catch (err) {
         alert("Could not read those photos. Try smaller images.");
         btn.disabled = false;
@@ -198,23 +287,40 @@
         phone: f.phone.replace(/\D/g, ""),
         desc: f.desc,
         ownerEmail: user.email,
+        ownerUid: user.uid,
         photo: photos[0],
         photos: photos
       };
             item.createdAt = new Date().toISOString();
-      const extra = JSON.parse(localStorage.getItem("userListings") || "[]");
-      extra.unshift(item);
-      try { localStorage.setItem("userListings", JSON.stringify(extra)); } catch (err) {}
+      
       try {
-        btn.textContent = "Saving to Firebase...";
-        const slim = Object.assign({}, item, { photos: photos.slice(0, 2) });
+        btn.textContent = "Saving...";
+item.ownerUid = fbAuth().currentUser.uid;
+        const slim = Object.assign({}, item, {
+          photos: photos
+        });
+
         const fid = await fbSaveListing(slim);
         item.id = fid;
+
+        const extra = JSON.parse(localStorage.getItem("userListings") || "[]");
+        extra.unshift(item);
+        localStorage.setItem("userListings", JSON.stringify(extra));
+
+        location.href = "listing.html?id=" + fid;
+
       } catch (err) {
-        alert("Saved on this phone. Firebase could not store the photos. Try 1 smaller photo.");
+        console.error("Firebase listing error:", err);
+
+        alert(
+          "Could not publish to Firebase.\n" +
+          "Error: " + (err.message || err)
+        );
+
+        btn.disabled = false;
+        btn.textContent = "Publish listing";
       }
-      location.href = "listing.html?id=" + item.id;
-    };
+};
   </script>
 </body>
 </html>

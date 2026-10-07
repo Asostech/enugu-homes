@@ -17,10 +17,9 @@ html { scroll-behavior: smooth; }
 body {
   font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
   color: var(--ink);
-  background:
-    radial-gradient(circle at top right, #e7f3ea 0, transparent 28%),
-    var(--bg);
-  line-height: 1.55;
+ background:
+  linear-gradient(rgba(238, 238, 238, 0.58), rgba(238, 238, 238, 0.58)),
+  url("../enugu-home-background.png") center / cover fixed;
 }
 h1, h2, h3 {
   font-family: "Fraunces", Georgia, serif;
@@ -302,3 +301,316 @@ footer a { color: #d5e8dc; }
   border-color: #b7c9de;
 }
 .area-land i { background: #d7e4f3; color: #1e4d7b; }
+
+/* Clickable property gallery */
+.gallery-main,
+.gallery-side {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  cursor: zoom-in;
+  background: #eee;
+}
+
+.gallery-main {
+  min-height: 320px;
+  border-radius: 12px;
+}
+
+.gallery-side {
+  height: 156px;
+  border-radius: 10px;
+}
+
+.gallery-main img,
+.gallery-side img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.gallery-side img {
+  min-height: 0;
+}
+
+.gallery-main:hover img,
+.gallery-side:hover img {
+  transform: scale(1.03);
+}
+
+/* Full-screen photo viewer */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.94);
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox.is-open {
+  display: flex;
+}
+
+.lightbox-content {
+  width: calc(100% - 140px);
+  height: calc(100% - 130px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.lightbox-content img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+  cursor: zoom-in;
+}
+
+.lightbox-content img.zoomed {
+  transform: scale(2);
+  max-width: none;
+  max-height: none;
+  cursor: zoom-out;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  color: white;
+  background: transparent;
+  border: 0;
+  font-size: 38px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  background: rgba(255, 255, 255, 0.15);
+  border: 0;
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  font-size: 32px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.lightbox-prev {
+  left: 16px;
+}
+
+.lightbox-next {
+  right: 16px;
+}
+
+.lightbox-tools {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  color: white;
+}
+
+.lightbox-tools button {
+  padding: 9px 16px;
+  color: white;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .gallery-main {
+    min-height: 230px;
+  }
+
+  .gallery-side {
+    height: 110px;
+  }
+
+  .lightbox-content {
+    width: calc(100% - 80px);
+    height: calc(100% - 110px);
+  }
+
+  .lightbox-prev {
+    left: 5px;
+  }
+
+  .lightbox-next {
+    right: 5px;
+  }
+
+  .lightbox-nav {
+    width: 36px;
+    height: 36px;
+    font-size: 26px;
+  }
+
+  .lightbox-close {
+    top: 8px;
+    right: 12px;
+  }
+}
+
+/* Advertisement Billboard */
+.ad-billboard-section {
+  width: 100%;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.ad-billboard {
+  width: 100%;
+  max-width: 1100px;
+  aspect-ratio: 16 / 7;
+  min-height: 150px;
+  max-height: 350px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 12px;
+  background: #f1f3f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  text-align: center;
+}
+
+.ad-billboard-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ad-billboard-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 600px) {
+  .ad-billboard-section {
+    padding: 10px 12px;
+  }
+
+  .ad-billboard {
+    aspect-ratio: 16 / 7;
+    min-height: 110px;
+    border-radius: 8px;
+  }
+}
+
+/* Account page navigation */
+.account-page header nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .account-page header .wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .account-page header nav {
+  display: flex !important;
+  width: auto;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  position: static;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+}
+/* Fix account page header on mobile */
+@media (max-width: 600px) {
+  .account-page header .wrap {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .account-page header .logo {
+    white-space: nowrap;
+    font-size: 16px;
+  }
+
+  .account-page header nav {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-end;
+    align-items: center;
+    width: auto !important;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .account-page header nav a {
+    width: auto !important;
+    padding: 8px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+.messages-back-button {
+  display: flex !important;
+  align-items: center;
+  width: 100% !important;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 12px 16px;
+  border: none !important;
+  border-radius: 0 !important;
+  background: #0a8f5b !important;
+  color: white !important;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.messages-back-button:hover {
+  background: #087a4d !important;
+}
+
+main {
+  background: transparent !important;
+}

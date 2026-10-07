@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard | Enugu Homes</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .admin-wrap {
+      max-width: 1000px;
+      margin: 35px auto;
+      padding: 0 18px;
+    }
+    .admin-panel {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 22px;
+      margin: 20px 0;
+    }
+    .admin-form {
+      display: grid;
+      gap: 14px;
+    }
+    .admin-form input,
+    .admin-form select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .ad-item {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 12px 0;
+    }
+    .ad-item img,
+    .ad-item video {
+      display: block;
+      width: 100%;
+      max-width: 320px;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    .ad-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    #adminMessage {
+      margin: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="index.html">
+        <span class="logo-mark">EH</span> Enugu Homes Admin
+      </a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="listings.html">All listings</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="admin-wrap">
+    <h1>Advertisement Dashboard</h1>
+    <p>Upload and manage adverts displayed on Enugu Homes.</p>
+    <p id="adminMessage">Checking admin access...</p>
+
+    <section class="admin-panel" id="adFormPanel" hidden>
+      <h2 id="formHeading">Add a new advert</h2>
+      <form class="admin-form" id="adForm">
+        <label>
+          Advert title
+          <input type="text" id="adTitle" maxlength="100"
+                 placeholder="Advert title" required />
+        </label>
+
+        <label>
+          Upload image or video
+          <input type="file" id="adMedia"
+                 accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                 required />
+        </label>
+
+        <label>
+          Advert link (optional)
+          <input type="url" id="adLink"
+                 placeholder="https://example.com" />
+        </label>
+
+        <label>
+          Display order
+          <input type="number" id="adOrder" min="1" value="1" required />
+        </label>
+
+        <label>
+          Status
+          <select id="adStatus">
+            <option value="paused">Paused</option>
+            <option value="active">Active</option>
+          </select>
+        </label>
+
+        <div class="ad-actions">
+          <button class="btn btn-primary" type="submit" id="saveAdBtn">
+            Save advert
+          </button>
+          <button class="btn" type="button" id="cancelEditBtn" hidden>
+            Cancel edit
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="admin-panel" id="adListPanel" hidden>
+      <h2>Manage adverts</h2>
+      <div id="adList">Loading adverts...</div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="copy">Enugu Homes · Admin Dashboard</div>
+    </div>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="js/fb.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/upload.js"></script>
+  <script>
+    const ADMIN_EMAIL = "enuguhomessurpport@gmail.com";
+    const adminMessage = document.getElementById("adminMessage");
+    const adFormPanel = document.getElementById("adFormPanel");
+    const adListPanel = document.getElementById("adListPanel");
+
+    fbAuth().onAuthStateChanged(user => {
+      if (!user || user.email !== ADMIN_EMAIL) {
+        adminMessage.textContent =
+          "Access denied. Please sign in with the admin account.";
+        adFormPanel.hidden = true;
+        adListPanel.hidden = true;
+        return;
+      }
+
+      adminMessage.textContent = "Admin access confirmed.";
+      adFormPanel.hidden = false;
+      adListPanel.hidden = false;
+      loadAds();
+    });
+
+    async function loadAds() {
+      try {
+        const ads = await fbLoadAllAds();
+        const adList = document.getElementById("adList");
+
+        if (!ads.length) {
+          adList.textContent = "No adverts have been added yet.";
+          return;
+        }
+
+        adList.innerHTML = ads.map(ad => `
+          <article class="ad-item">
+            <strong>${escapeHTML(ad.title || "Untitled advert")}</strong>
+            <p>Type: ${escapeHTML(ad.mediaType || "Unknown")} |
+               Status: ${escapeHTML(ad.status || "Paused")} |
+               Order: ${Number(ad.order || 1)}</p>
+            ${ad.mediaType === "video"
+              ? `<video src="${escapeAttr(ad.mediaUrl)}" controls></video>`
+              : `<img src="${escapeAttr(ad.mediaUrl)}" alt="Advert media">`}
+            <div class="ad-actions">
+              <button class="btn" type="button"
+                onclick="changeAdStatus('${ad.id}', '${ad.status === "active" ? "paused" : "active"}')">
+                ${ad.status === "active" ? "Pause" : "Activate"}
+              </button>
+              <button class="btn" type="button"
+                onclick="editAd('${ad.id}')">Edit</button>
+              <button class="btn" type="button"
+                onclick="removeAd('${ad.id}')">Delete</button>
+            </div>
+          </article>
+        `).join("");
+      } catch (error) {
+        adminMessage.textContent = "Could not load adverts: " + error.message;
+      }
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#39;"
+      })[char]);
+    }
+
+    function escapeAttr(value) {
+      return escapeHTML(value || "");
+    }
+
+    async function changeAdStatus(id, status) {
+      try {
+        await fbSetAdStatus(id, status);
+        await loadAds();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    async function removeAd(id) {
+      if (!confirm("Delete this advert from Enugu Homes?")) return;
+      try {
+        await fbDeleteAd(id);
+        await loadAds();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    let editingAdId = null;
+    let loadedAds = [];
+
+    async function editAd(id) {
+      try {
+        loadedAds = await fbLoadAllAds();
+        const ad = loadedAds.find(item => item.id === id);
+        if (!ad) return;
+
+        editingAdId = id;
+        document.getElementById("formHeading").textContent = "Edit advert";
+        document.getElementById("adTitle").value = ad.title || "";
+        document.getElementById("adLink").value = ad.linkUrl || "";
+        document.getElementById("adOrder").value = ad.order || 1;
+        document.getElementById("adStatus").value = ad.status || "paused";
+        document.getElementById("adMedia").required = false;
+        document.getElementById("cancelEditBtn").hidden = false;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    document.getElementById("cancelEditBtn").addEventListener("click", () => {
+      editingAdId = null;
+      document.getElementById("adForm").reset();
+      document.getElementById("adOrder").value = 1;
+      document.getElementById("adMedia").required = true;
+      document.getElementById("formHeading").textContent = "Add a new advert";
+      document.getElementById("cancelEditBtn").hidden = true;
+    });
+    
+    // Upload an advert image or video to Cloudinary.
+    async function uploadAdMedia(file) {
+      const isVideo = file.type.startsWith("video/");
+      const allowedImages = ["image/jpeg", "image/png", "image/webp"];
+      const allowedVideos = ["video/mp4", "video/webm"];
+
+      if (
+        (isVideo && !allowedVideos.includes(file.type)) ||
+        (!isVideo && !allowedImages.includes(file.type))
+      ) {
+        throw new Error("Use JPG, PNG, WebP, MP4 or WebM files.");
+      }
+
+      const resourceType = isVideo ? "video" : "image";
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "enugu_homes_ads");
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/ayz4tiup/${resourceType}/upload`,
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error?.message || "Advert media upload failed."
+        );
+      }
+
+      return {
+        mediaUrl: result.secure_url,
+        mediaType: isVideo ? "video" : "image"
+      };
+    }
+
+    // Save a new advert or update an existing one.
+    document.getElementById("adForm").addEventListener("submit", async event => {
+      event.preventDefault();
+
+      if (!fbIsAdAdmin()) {
+        alert("Admin access required.");
+        return;
+      }
+
+      const saveButton = document.getElementById("saveAdBtn");
+      const file = document.getElementById("adMedia").files[0];
+
+      saveButton.disabled = true;
+      saveButton.textContent = "Saving...";
+
+      try {
+        let existingAd = null;
+
+        if (editingAdId) {
+          const ads = await fbLoadAllAds();
+          existingAd = ads.find(ad => ad.id === editingAdId);
+
+          if (!existingAd) {
+            throw new Error("The advert could not be found.");
+          }
+        }
+
+        let mediaUrl = existingAd?.mediaUrl || "";
+        let mediaType = existingAd?.mediaType || "";
+
+        if (file) {
+          const uploaded = await uploadAdMedia(file);
+          mediaUrl = uploaded.mediaUrl;
+          mediaType = uploaded.mediaType;
+        }
+
+        if (!mediaUrl) {
+          throw new Error("Please select an image or video.");
+        }
+
+        const ad = {
+          title: document.getElementById("adTitle").value.trim(),
+          mediaUrl,
+          mediaType,
+          linkUrl: document.getElementById("adLink").value.trim(),
+          order: Number(document.getElementById("adOrder").value),
+          status: document.getElementById("adStatus").value
+        };
+
+        if (!ad.title) {
+          throw new Error("Please enter an advert title.");
+        }
+
+        if (!Number.isInteger(ad.order) || ad.order < 1) {
+          throw new Error("Display order must be a whole number of 1 or more.");
+        }
+
+        if (editingAdId) {
+          await fbUpdateAd(editingAdId, ad);
+        } else {
+          await fbCreateAd(ad);
+        }
+
+        alert("Advert saved successfully.");
+        editingAdId = null;
+        document.getElementById("adForm").reset();
+        document.getElementById("adOrder").value = 1;
+        document.getElementById("adMedia").required = true;
+        document.getElementById("formHeading").textContent = "Add a new advert";
+        document.getElementById("cancelEditBtn").hidden = true;
+
+        await loadAds();
+      } catch (error) {
+        alert("Could not save advert: " + error.message);
+      } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = "Save advert";
+      }
+    });
+
+  </script>
+</body>
+</html>

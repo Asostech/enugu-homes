@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages | Enugu Homes</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+     background: url("enugu-home-background.png") center / cover fixed;
+      color: #222;
+    }
+
+    .messages-page {
+      max-width: 900px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: transparent;
+    }
+
+    .messages-header {
+      padding: 16px;
+      border-bottom: 1px solid #ddd;
+      background: #fff;
+    }
+
+    .messages-header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .property-info {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+      background: #fafafa;
+    }
+
+    .property-info strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .property-info span {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .conversation {
+      flex: 1;
+      padding: 20px 16px;
+      overflow-y: auto;
+      min-height: 400px;
+    }
+
+    .message {
+      max-width: 75%;
+      margin-bottom: 12px;
+      padding: 10px 13px;
+      border-radius: 12px;
+      line-height: 1.4;
+    }
+
+    .message.mine {
+      margin-left: auto;
+      background: #0b7a4b;
+      color: white;
+    }
+
+    .message.theirs {
+      margin-right: auto;
+      background: #eee;
+      color: #222;
+    }
+
+    .message-time {
+      display: block;
+      font-size: 11px;
+      margin-top: 5px;
+      opacity: 0.7;
+    }
+
+    .message-input-area {
+      padding: 12px;
+      border-top: 1px solid #ddd;
+      background: #fff;
+      display: flex;
+      gap: 10px;
+    }
+
+    .message-input {
+      flex: 1;
+      resize: none;
+      min-height: 48px;
+      max-height: 120px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font: inherit;
+      outline: none;
+    }
+
+    .message-input:focus {
+      border-color: #0b7a4b;
+    }
+
+    .send-button {
+      border: none;
+      border-radius: 10px;
+      padding: 0 20px;
+      background: #0b7a4b;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .send-button:hover {
+      opacity: 0.9;
+    }
+
+    @media (max-width: 600px) {
+      .message {
+        max-width: 85%;
+      }
+
+      .message-input-area {
+        position: sticky;
+        bottom: 0;
+      }
+    }
+    .messages-back-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 0;
+  background: #0a8f5b;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.messages-back-button:hover {
+  background: #087a4d;
+}
+
+.messages-header {
+  background: #0a8f5b;
+  color: white;
+  padding: 18px 20px;
+  margin: 0;
+  border: none;
+}
+
+.messages-header h1 {
+  margin: 0;
+  color: white;
+  font-size: 26px;
+}
+.conversation-list-item {
+  background: #fff3b0;
+  border: 1px solid #e0b800;
+  color: #222;
+}
+
+.conversation-list-item:hover {
+  background: #ffe680;
+}
+#themeToggle {
+    margin-left: auto;
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    background: #fff;
+    color: #222;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+body.dark-mode {
+    background: #121212;
+    color: #eee;
+}
+
+body.dark-mode .messages-page {
+    background: rgba(18, 18, 18, 0.92);
+}
+
+body.dark-mode .messages-header {
+    background: #1e1e1e;
+    border-color: #333;
+}
+
+body.dark-mode .conversation-list-item {
+    background: #252525;
+    border-color: #444;
+    color: #eee;
+}
+
+body.dark-mode .message-input-area {
+    background: #1e1e1e;
+    border-color: #333;
+}
+
+body.dark-mode .message-input {
+    background: #252525;
+    color: #fff;
+    border-color: #555;
+}
+
+body.dark-mode #themeToggle {
+    background: #333;
+    color: #fff;
+    border-color: #555;
+}
+  </style>
+</head>
+
+<body>
+
+  <main class="messages-page">
+
+    <button
+  type="button"
+  class="messages-back-button"
+  onclick="history.back()"
+>
+  ← Back
+</button>
+
+    <header class="messages-header">
+      <h1>Private Messages</h1>
+      <button id="themeToggle" type="button">🌙 Dark</button>
+    </header>
+    
+    <section class="conversation-list-section">
+  <h2>My Conversations</h2>
+  <div id="conversationList">
+    <p>Loading conversations...</p>
+  </div>
+</section>
+
+    <section class="property-info">
+      <strong id="propertyTitle">Property</strong>
+      <span id="otherParticipant">Loading participant...</span>
+    </section>
+
+    <section
+      id="conversation"
+      class="conversation"
+      aria-live="polite"
+    >
+      <!-- Messages will appear here -->
+    </section>
+
+    <form
+      id="messageForm"
+      class="message-input-area"
+    >
+      <textarea
+        id="messageInput"
+        class="message-input"
+        placeholder="Type your message..."
+        rows="1"
+        spellcheck="true"
+        autocorrect="on"
+        autocomplete="off"
+      ></textarea>
+
+      <button
+        id="sendButton"
+        class="send-button"
+        type="submit"
+      >
+        Send
+      </button>
+    </form>
+
+  </main>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="js/fb.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/site.js"></script>
+<script>
+const conversationId =
+  new URLSearchParams(location.search).get("conversationId");
+
+const auth = fbAuth();
+const db = fbDb();
+
+const propertyTitle = document.getElementById("propertyTitle");
+const otherParticipant = document.getElementById("otherParticipant");
+const conversationBox = document.getElementById("conversation");
+const messageForm = document.getElementById("messageForm");
+const messageInput = document.getElementById("messageInput");
+const sendButton = document.getElementById("sendButton");
+
+let loggedInUser = null;
+let conversationRef = null;
+let unsubscribeMessages = null;
+
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+
+function formatTime(timestamp) {
+  if (!timestamp || !timestamp.toDate) return "";
+
+  return timestamp.toDate().toLocaleString([], {
+    dateStyle: "short",
+    timeStyle: "short"
+  });
+}
+
+
+function showMessage(message, mine, timestamp, read) {
+  const wrapper = document.createElement("div");
+
+  wrapper.className = mine
+    ? "message message-mine"
+    : "message message-theirs";
+
+  wrapper.style.display = "flex";
+  wrapper.style.flexDirection = "column";
+  wrapper.style.alignItems = mine ? "flex-end" : "flex-start";
+  wrapper.style.margin = "10px 12px";
+
+  const bubble = document.createElement("div");
+
+  bubble.style.maxWidth = "80%";
+  bubble.style.padding = "10px 14px";
+  bubble.style.borderRadius = "16px";
+  bubble.style.lineHeight = "1.4";
+  bubble.style.wordBreak = "break-word";
+  bubble.style.background = mine ? "#0b8f55" : "#f1f1f1";
+  bubble.style.color = mine ? "#ffffff" : "#222222";
+
+  bubble.textContent = message;
+
+  const meta = document.createElement("div");
+
+  meta.style.fontSize = "12px";
+  meta.style.marginTop = "4px";
+  meta.style.color = "#777";
+
+  meta.textContent =
+    `${formatTime(timestamp)}${mine ? (read ? " · Read" : " · Sent") : ""}`;
+
+  bubble.appendChild(meta);
+  wrapper.appendChild(bubble);
+
+  conversationBox.appendChild(wrapper);
+}
+
+
+async function markIncomingMessagesAsRead(snapshot) {
+  const updates = [];
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+
+    if (
+      data.senderId &&
+      data.senderId !== loggedInUser.uid &&
+      data.read === false
+    ) {
+      updates.push(
+        conversationRef
+          .collection("messages")
+          .doc(doc.id)
+          .update({ read: true })
+      );
+    }
+  });
+
+  if (updates.length) {
+    await Promise.allSettled(updates);
+  }
+}
+
+async function loadConversationList() {
+  const conversationList = document.getElementById("conversationList");
+
+  if (!loggedInUser) {
+    conversationList.innerHTML =
+      "<p>Please log in to view your conversations.</p>";
+    return;
+  }
+
+  try {
+    const snapshot = await db
+      .collection("conversations")
+      .where("participants", "array-contains", loggedInUser.uid)
+      .get();
+
+    if (snapshot.empty) {
+      conversationList.innerHTML = "<p>No conversations yet.</p>";
+      return;
+    }
+
+    conversationList.innerHTML = "";
+
+    for (const doc of snapshot.docs) {
+      const conversation = doc.data();
+
+      // Get the lister's name from the public listing.
+      let participantName = "Landlord / Agent";
+
+      if (conversation.listingId) {
+        const listingSnap = await db
+          .collection("listings")
+          .doc(conversation.listingId)
+          .get();
+
+        if (listingSnap.exists) {
+          const listing = listingSnap.data();
+          participantName =
+            listing.lister || listing.role || "Landlord / Agent";
+        }
+      }
+
+      // Count unread messages from the other participant.
+      const messagesSnap = await db
+        .collection("conversations")
+        .doc(doc.id)
+        .collection("messages")
+        .get();
+
+      const unreadCount = messagesSnap.docs.filter(messageDoc => {
+        const message = messageDoc.data();
+
+        return (
+          message.senderId !== loggedInUser.uid &&
+          message.read === false
+        );
+      }).length;
+
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "conversation-list-item";
+
+      item.style.display = "flex";
+item.style.flexDirection = "column";
+item.style.alignItems = "flex-start";
+item.style.gap = "4px";
+item.style.textAlign = "left";
+
+      const title = document.createElement("strong");
+      title.textContent =
+        conversation.listingTitle || "Property";
+
+      const participant = document.createElement("span");
+      participant.textContent =
+        "Chat with " + participantName;
+
+      const preview = document.createElement("span");
+      preview.textContent =
+        conversation.lastMessage || "No messages yet";
+
+      item.appendChild(title);
+      item.appendChild(participant);
+      item.appendChild(preview);
+
+      if (unreadCount > 0) {
+        const unread = document.createElement("span");
+        unread.textContent =
+          unreadCount === 1
+            ? "1 new message"
+            : `${unreadCount} new messages`;
+
+        unread.style.fontWeight = "700";
+        unread.style.marginTop = "6px";
+
+        item.appendChild(unread);
+      }
+
+      item.addEventListener("click", () => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("conversationId", doc.id);
+        window.location.href = url.toString();
+      });
+
+      conversationList.appendChild(item);
+    }
+
+  } catch (error) {
+    console.error("Conversation list error:", error);
+
+    conversationList.innerHTML =
+      "<p>Could not load your conversations.</p>";
+  }
+}
+async function loadConversation() {
+  if (!conversationId) {
+    propertyTitle.textContent = "No conversation selected";
+    otherParticipant.textContent = "";
+    messageInput.disabled = true;
+    sendButton.disabled = true;
+    return;
+  }
+
+  try {
+    conversationRef = db
+      .collection("conversations")
+      .doc(conversationId);
+
+    const conversationSnap = await conversationRef.get();
+
+    if (!conversationSnap.exists) {
+      propertyTitle.textContent = "Conversation not found";
+      otherParticipant.textContent = "";
+      messageInput.disabled = true;
+      sendButton.disabled = true;
+      return;
+    }
+
+    const conversation = conversationSnap.data();
+    console.log("CURRENT USER UID:", loggedInUser.uid);
+console.log("CONVERSATION PARTICIPANTS:", conversation.participants);
+
+    if (!conversation.participants.includes(loggedInUser.uid)) {
+      propertyTitle.textContent = "Access denied";
+      otherParticipant.textContent = "";
+      messageInput.disabled = true;
+      sendButton.disabled = true;
+      return;
+    }
+
+    propertyTitle.textContent =
+      conversation.listingTitle || "Property";
+
+    const otherUid = conversation.participants.find(
+      uid => uid !== loggedInUser.uid
+    );
+
+    /*
+      We do not read the other user's private users document.
+      Instead, we read the public listing and use its lister name.
+    */
+    if (conversation.listingId) {
+      const listingSnap = await db
+        .collection("listings")
+        .doc(conversation.listingId)
+        .get();
+
+      if (listingSnap.exists) {
+        const listing = listingSnap.data();
+
+        otherParticipant.textContent =
+          "Chat with " +
+          (listing.lister || listing.role || "Landlord / Agent");
+      } else {
+        otherParticipant.textContent = "Landlord / Agent";
+      }
+    } else {
+      otherParticipant.textContent = "Landlord / Agent";
+    }
+
+    conversationBox.innerHTML = "";
+
+    unsubscribeMessages = conversationRef
+      .collection("messages")
+      .orderBy("createdAt", "asc")
+      .onSnapshot(
+        async snapshot => {
+          conversationBox.innerHTML = "";
+
+          snapshot.forEach(doc => {
+            const data = doc.data();
+
+            showMessage(
+              data.text || "",
+              data.senderId === loggedInUser.uid,
+              data.createdAt,
+              data.read
+            );
+          });
+
+          conversationBox.scrollTop =
+            conversationBox.scrollHeight;
+
+          await markIncomingMessagesAsRead(snapshot);
+        },
+        error => {
+          console.error("Message listener error:", error);
+          conversationBox.innerHTML =
+            "<p>Could not load messages.</p>";
+        }
+      );
+
+  } catch (error) {
+    console.error("Load conversation error:", error);
+
+    propertyTitle.textContent =
+      "Could not load conversation";
+
+    otherParticipant.textContent = "";
+  }
+}
+
+
+messageForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const text = messageInput.value.trim();
+
+  if (!text) return;
+
+  if (!loggedInUser || !conversationRef) {
+    alert("Messaging is not ready yet. Please try again.");
+    return;
+  }
+
+  if (text.length > 5000) {
+    alert("Your message is too long. Please keep it under 5000 characters.");
+    return;
+  }
+
+  sendButton.disabled = true;
+
+  try {
+    await conversationRef
+      .collection("messages")
+      .add({
+        senderId: loggedInUser.uid,
+        text: text,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        read: false
+      });
+
+    await conversationRef.update({
+      lastMessage: text,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    messageInput.value = "";
+    messageInput.focus();
+
+  } catch (error) {
+    console.error("Send message error:", error);
+    alert("Could not send the message. Please try again.");
+  } finally {
+    sendButton.disabled = false;
+  }
+});
+
+
+auth.onAuthStateChanged(async user => {
+  if (!user) {
+    propertyTitle.textContent = "Please log in";
+    otherParticipant.textContent = "";
+    messageInput.disabled = true;
+    sendButton.disabled = true;
+
+    return;
+  }
+
+  loggedInUser = user;
+
+  await loadConversationList();
+  await loadConversation();
+});
+</script>
+
+<script>
+const themeToggle = document.getElementById("themeToggle");
+
+themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+
+    if (document.body.classList.contains("dark-mode")) {
+        themeToggle.textContent = "☀️ Light";
+    } else {
+        themeToggle.textContent = "🌙 Dark";
+    }
+});
+</script>
+</body>
+</html>

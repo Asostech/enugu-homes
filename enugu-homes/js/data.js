@@ -9,7 +9,7 @@ window.SITE = window.SITE = {
   phoneDisplay: "09122822890",
   phoneIntl: "2349122822890",
   email: "enuguhomes@gmail.com",
-  adminEmail: "enuguhomessupport@gmail.com",
+  adminEmail: "enuguhomessurpport@gmail.com",
   city: "Enugu, Nigeria",
   whatsappPrefill: "Hello Enugu Homes, I want to list / find a property.",
   emailjs: {
