@@ -31,8 +31,8 @@
   <script src="js/auth.js"></script>
   <script src="js/site.js"></script>
   <script>
-        const id = new URLSearchParams(location.search).get("id");
-    refreshListings().then(() => {
+        
+    refreshListings().then(() => {const id = new URLSearchParams(location.search).get("id")?.trim();
         let p = allListings().find(x => x.id === id || String(x.id) === String(id));
     const el = document.getElementById("page");
     if (!p) {

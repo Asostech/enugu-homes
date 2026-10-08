@@ -273,16 +273,16 @@ function cardHTML(p) {
   const beds = p.property === "Land" ? "Land" : (p.beds + " bed · " + p.baths + " bath");
   return `
     <article class="card">
-      <a class="photo" href="listing.html?id=${p.id}" style="background-image:url('${p.photo}')">
+      <a class="photo" href="listing?id=${p.id}" style="background-image:url('${p.photo}')">
         <span class="badge ${badge}">${label}</span>
       </a>
       <div class="body">
         <div class="price">${formatNaira(p.price)}${p.period || ""}</div>
-        <h3><a href="listing.html?id=${p.id}">${p.title}</a></h3>
+        <h3><a href="listing?id=${p.id}">${p.title}</a></h3>
         <div class="meta">${p.property} · ${p.area}<br>${beds}</div>
         <div class="actions">
           <a class="btn btn-wa" href="${waLink(p.phone, p.title)}" target="_blank" rel="noopener">WhatsApp</a>
-          <a class="btn btn-outline" href="listing.html?id=${p.id}">Details</a>
+          <a class="btn btn-outline" href="listing?id=${p.id}">Details</a>
         </div>
       </div>
     </article>`;

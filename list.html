@@ -307,7 +307,7 @@ item.ownerUid = fbAuth().currentUser.uid;
         extra.unshift(item);
         localStorage.setItem("userListings", JSON.stringify(extra));
 
-        location.href = "listing.html?id=" + fid;
+        location.href = "listing?id=" + fid;
 
       } catch (err) {
         console.error("Firebase listing error:", err);
