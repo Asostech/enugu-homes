@@ -116,12 +116,12 @@ function logoutUser() {
 function requireLister() {
   const user = currentUser();
   if (!user) {
-    location.href = "login.html?next=list.html";
+    location.href = "/login?next=/list";
     return null;
   }
   if (user.role === "seeker") {
     alert("Tenants and buyers browse listings. Sign up as Landlord or Agent to list a property.");
-    location.href = "account.html";
+    location.href = "/account";
     return null;
   }
   return user;

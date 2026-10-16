@@ -15,7 +15,7 @@
     <div class="wrap">
       <a class="logo" href="/"><span class="logo-mark">EH</span> Enugu Homes</a>
       <nav id="nav">
-        <a href="login.html">Log in</a>
+        <a href="/login">Log in</a>
         <a class="btn btn-outline" href="/">Home</a>
       </nav>
     </div>
@@ -56,7 +56,7 @@
         <p id="err" style="color:#9b1c1c"></p>
                 <div class="g-recaptcha" data-sitekey="6Lc7W7ktAAAAACndgnwN1zqTcJg7XVt3fPF-8TTm"></div>
         <button class="btn btn-primary" type="submit">Sign up</button>
-        <p class="meta">Already have an account? <a href="login.html">Log in</a></p>
+        <p class="meta">Already have an account? <a href="/login">Log in</a></p>
         </form>
     </div>
   </main>
@@ -88,7 +88,7 @@
         const res = await fbSignup(f);
         if (!res.ok) { err.textContent = res.error; return; }
         alert("Account created. Check Gmail for a verification link, then log in.");
-        location.href = "login.html";
+        location.href = "/login";
       } catch (ex) {
         err.textContent = mapAuthError(ex);
       }

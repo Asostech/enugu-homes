@@ -14,8 +14,8 @@
       <a class="logo" href="/"><span class="logo-mark">EH</span> Enugu Homes</a>
       <nav>
   <a href="/">Home</a>
-  <a href="listings.html">Browse</a>
-  <a href="messages.html">Messages</a>
+  <a href="/listings">Browse</a>
+  <a href="/messages">Messages</a>
   <a class="btn btn-outline" href="#" id="logoutBtn">Log out</a>
 </nav>
     </div>
@@ -24,7 +24,7 @@
     <div class="wrap">
       <h2 id="hello">My account</h2>
       <p class="sub" id="meta"></p>
-      <p><a class="btn btn-primary" href="list.html">List a property</a></p>
+      <p><a class="btn btn-primary" href="/list">List a property</a></p>
       <h3 style="margin:28px 0 12px">My listings</h3>
       <div class="grid" id="mine"></div>
     </div>
@@ -37,7 +37,7 @@
   <script src="js/auth.js"></script>
   <script>
     const user = currentUser();
-    if (!user) location.href = "login.html";
+    if (!user) location.href = "/login";
     else {
       document.getElementById("hello").textContent = "Hello, " + user.name;
       document.getElementById("meta").textContent = user.role + " · " + user.email + " · " + user.phone;

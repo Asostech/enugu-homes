@@ -53,7 +53,7 @@
       if (typeof finishSignup === "function") {
         const res = finishSignup(typed);
         if (res.ok) {
-          location.href = res.user.role === "seeker" ? "listings.html" : "list.html";
+          location.href = res.user.role === "seeker" ? "/listings" : "/list";
           return;
         }
       }
@@ -78,7 +78,7 @@
           }
           localStorage.setItem("enuguSession", data.email);
           localStorage.removeItem("emailChallenge");
-          location.href = data.role === "seeker" ? "listings.html" : "list.html";
+          location.href = data.role === "seeker" ? "/listings" : "/list";
           return;
         }
       }

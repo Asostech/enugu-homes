@@ -14,9 +14,9 @@
       <button class="menu-btn" type="button" onclick="toggleNav()">Menu</button>
       <nav id="nav">
         <a href="/">Home</a>
-        <a class="active" href="listings.html">All listings</a>
-        <a href="about.html">About</a>
-        <a class="btn btn-primary" href="list.html">List a property</a>
+        <a class="active" href="/listings">All listings</a>
+        <a href="/about">About</a>
+        <a class="btn btn-primary" href="/list">List a property</a>
       </nav>
     </div>
   </header>
@@ -139,7 +139,7 @@
     document.getElementById("count").textContent = items.length + " propert" + (items.length === 1 ? "y" : "ies") + " in Enugu";
         document.getElementById("grid").innerHTML = items.length
       ? items.map(cardHTML).join("")
-      : "<p>No listings match those filters yet. Try another area or <a href='list.html'>list a property</a>.</p>";
+      : "<p>No listings match those filters yet. Try another area or <a href='/list'>list a property</a>.</p>";
     });
   </script>
 </body>

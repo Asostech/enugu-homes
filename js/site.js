@@ -19,11 +19,11 @@ function paintAuthNav() {
   if (!slot || typeof currentUser !== "function") return;
   const user = currentUser();
   if (user) {
-    slot.innerHTML = `<a href="account.html">${user.name.split(" ")[0]}</a>
-      <a class="btn btn-primary" href="list.html">List a property</a>`;
+    slot.innerHTML = `<a href="/account">${user.name.split(" ")[0]}</a>
+      <a class="btn btn-primary" href="/list">List a property</a>`;
   } else {
-    slot.innerHTML = `<a href="login.html">Log in</a>
-      <a class="btn btn-gold" href="signup.html">Sign up</a>`;
+    slot.innerHTML = `<a href="/login">Log in</a>
+      <a class="btn btn-gold" href="/signup">Sign up</a>`;
   }
 }
 

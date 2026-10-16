@@ -53,7 +53,7 @@
       try {
         await fbReset(email);
         alert("Check your email for a password reset link.");
-        location.href = "login.html";
+        location.href = "/login";
       } catch (ex) {
         document.getElementById("err1").textContent = mapAuthError(ex);
       }

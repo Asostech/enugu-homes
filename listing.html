@@ -14,9 +14,9 @@
       <button class="menu-btn" type="button" onclick="toggleNav()">Menu</button>
       <nav id="nav">
         <a href="/">Home</a>
-        <a href="listings.html">All listings</a>
-        <a href="about.html">About</a>
-        <a class="btn btn-primary" href="list.html">List a property</a>
+        <a href="/listings">All listings</a>
+        <a href="/about">About</a>
+        <a class="btn btn-primary" href="/list">List a property</a>
       </nav>
     </div>
   </header>
@@ -36,7 +36,7 @@
         let p = (loadedListings || allListings()).find(x => String(x.id).trim() === String(id).trim());
     const el = document.getElementById("page");
     if (!p) {
-      el.innerHTML = "<p>Listing not found. <a href='listings.html'>Back to listings</a></p>";
+      el.innerHTML = "<p>Listing not found. <a href='/listings'>Back to listings</a></p>";
     } else {
       document.title = p.title + " — Enugu Homes";
       const pics = (p.photos && p.photos.length ? p.photos : [p.photo]);
@@ -189,7 +189,7 @@ console.log("Listing owner:", p.ownerEmail);
     deleteListing(p.id);
 
     alert("Listing deleted successfully.");
-    location.href = "listings.html";
+    location.href = "/listings";
   } catch (err) {
     console.error("Delete error:", err);
     alert("Could not delete listing from Firebase: " + (err.message || err));
@@ -204,7 +204,7 @@ console.log("Listing owner:", p.ownerEmail);
   const user = currentUser();
 
   if (!user) {
-    location.href = "login.html?next=listing.html?id=" + encodeURIComponent(listingId);
+    location.href = "/login?next=" + encodeURIComponent("/listing?id=" + listingId);
     return;
   }
 

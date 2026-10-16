@@ -13,7 +13,7 @@
   <header>
     <div class="wrap">
       <a class="logo" href="/"><span class="logo-mark">EH</span> Enugu Homes</a>
-      <nav><a class="btn btn-gold" href="signup.html">Sign up</a></nav>
+      <nav><a class="btn btn-gold" href="/signup">Sign up</a></nav>
     </div>
   </header>
   <main class="auth-page">
@@ -34,8 +34,8 @@
         <p id="err" style="color:#9b1c1c"></p>
                 <div class="g-recaptcha" data-sitekey="6Lc7W7ktAAAAACndgnwN1zqTcJg7XVt3fPF-8TTm"></div>
         <button class="btn btn-primary" type="submit">Log in</button>
-                <p class="meta"><a href="forgot.html">Forgot password?</a></p>
-        <p class="meta">New here? <a href="signup.html">Create an account</a></p>
+                <p class="meta"><a href="/forgot">Forgot password?</a></p>
+        <p class="meta">New here? <a href="/signup">Create an account</a></p>
       </form>
     </div>
   </main>
@@ -60,7 +60,8 @@
         }
         err.textContent = "Signing in...";
         await fbLogin(f.email, f.password);
-        location.href = "account.html";
+        const next = new URLSearchParams(location.search).get("next");
+location.href = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
       } catch (ex) {
         err.textContent = mapAuthError(ex);
       }
