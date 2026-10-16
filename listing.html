@@ -10,10 +10,10 @@
 <body>
   <header>
     <div class="wrap">
-      <a class="logo" href="index.html"><span class="logo-mark">EH</span> Enugu Homes</a>
+      <a class="logo" href="/"><span class="logo-mark">EH</span> Enugu Homes</a>
       <button class="menu-btn" type="button" onclick="toggleNav()">Menu</button>
       <nav id="nav">
-        <a href="index.html">Home</a>
+        <a href="/">Home</a>
         <a href="listings.html">All listings</a>
         <a href="about.html">About</a>
         <a class="btn btn-primary" href="list.html">List a property</a>
@@ -32,8 +32,8 @@
   <script src="js/site.js"></script>
   <script>
         
-    refreshListings().then(() => {const id = new URLSearchParams(location.search).get("id")?.trim();
-        let p = allListings().find(x => x.id === id || String(x.id) === String(id));
+    refreshListings().then((loadedListings) => {const id = new URLSearchParams(location.search).get("id")?.trim();
+        let p = (loadedListings || allListings()).find(x => String(x.id).trim() === String(id).trim());
     const el = document.getElementById("page");
     if (!p) {
       el.innerHTML = "<p>Listing not found. <a href='listings.html'>Back to listings</a></p>";

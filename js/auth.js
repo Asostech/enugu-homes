@@ -111,7 +111,7 @@ function logoutUser() {
   try {
     if (typeof fbAuth === "function" && fbAuth()) fbAuth().signOut();
   } catch (e) {}
-  location.href = "index.html";
+  location.href = "/";
 }
 function requireLister() {
   const user = currentUser();
